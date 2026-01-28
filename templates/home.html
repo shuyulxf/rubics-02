@@ -1,85 +1,237 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>NLP Calendar App</title>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NLP Calendar App</title>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"
+		/>
+		<link
+			rel="stylesheet"
+			href="{{ url_for('static', filename='calendar.css') }}"
+		/>
+		<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+	</head>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
-</head>
+	<body>
+		<div class="ui container">
+			<h1 class="ui center aligned header">Natural Language Calendar App</h1>
 
-<body>
-    <div class="ui container">
-        <h1 class="ui center aligned header">Natural Language Calendar App</h1>
+			<form
+				class="ui form"
+				action="/add"
+				method="post"
+			>
+				<div class="field">
+					<label>Event</label>
+					<input
+						type="text"
+						name="title"
+						placeholder="Enter event... (e.g., 'Meeting tomorrow at 3:00 PM')"
+					/><br />
+					<small class="ui text"
+						>💡 Tip: Include dates like "tomorrow", "next Friday", "Jan 15th",
+						"@ 14:30" or "first Sunday of next month" in your event
+						title!</small
+					>
+				</div>
+				<button
+					class="ui blue button"
+					type="submit"
+				>
+					Add
+				</button>
+			</form>
 
-        <form class="ui form" action="/add" method="post">
-            <div class="field">
-                <label>Event</label>
-                <input type="text" name="title" placeholder="Enter event... (e.g., 'Meeting tomorrow at 3:00 PM')"><br>
-                <small class="ui text">💡 Tip: Include dates like "tomorrow", "next Friday", "Jan 15th", "@ 14:30" or "first Sunday of next month" in your event title!</small>
-            </div>
-            <button class="ui blue button" type="submit">Add</button>
-        </form>
+			<hr />
 
-        <hr>
+			<button
+				class="ui button"
+				id="toggle-view-btn"
+				style="margin-bottom: 1em"
+			>
+				Switch to Calendar View
+			</button>
+			<button
+				class="ui button"
+				id="toggle-month-day-btn"
+				style="margin-bottom: 1em; margin-left: 1em"
+			>
+				Switch to Day View
+			</button>
 
-        <button class="ui button" id="toggle-view-btn" style="margin-bottom:1em;">Switch to Calendar View</button>
-        <button class="ui button" id="toggle-month-day-btn" style="margin-bottom:1em; margin-left:1em;">Switch to Day View</button>
+			<div id="list-view">
+				{% for event in event_list %}
+				<div
+					class="ui segment list-event"
+					data-event-id="{{ event.id }}"
+					data-title="{{ event.title }}"
+					data-date="{{ event.date_time.strftime('%Y-%m-%d') if event.date_time else '' }}"
+					data-time="{{ event.date_time.strftime('%H:%M') if event.date_time and not event.is_all_day else '' }}"
+				>
+					<p class="ui big header">{{event.id }} | {{ event.title }}</p>
+					{% if event.date_time and event.is_all_day %}
+					<div
+						class="ui small header"
+						style="color: #666; margin-top: 5px"
+					>
+						📅 Date: {{ event.date_time.strftime('%A, %B %d, %Y - All Day') }}
+					</div>
+					{% elif event.date_time %}
+					<div
+						class="ui small header"
+						style="color: #666; margin-top: 5px"
+					>
+						📅 Date: {{ event.date_time.strftime('%A, %B %d, %Y at %I:%M %p') }}
+					</div>
+					{% endif %}
+					<button
+						class="ui icon button edit-list-btn"
+						data-event-id="{{ event.id }}"
+						title="Edit"
+					>
+						<i class="pencil alternate icon"></i>
+					</button>
+					<a
+						class="ui red button"
+						href="/delete/{{ event.id }}"
+						>Delete</a
+					>
+				</div>
+				{% endfor %}
+			</div>
 
-        <div id="list-view">
-            {% for event in event_list %}
-            <div class="ui segment list-event" data-event-id="{{ event.id }}">
-                <p class="ui big header">{{event.id }} | {{ event.title }}</p>
-                {% if event.date_time and event.is_all_day %}
-                <div class="ui small header" style="color: #666; margin-top: 5px;">
-                    📅 Date: {{ event.date_time.strftime('%A, %B %d, %Y - All Day') }}
-                </div>
-                {% elif event.date_time %}
-                <div class="ui small header" style="color: #666; margin-top: 5px;">
-                    📅 Date: {{ event.date_time.strftime('%A, %B %d, %Y at %I:%M %p') }}
-                </div>
-                {% endif %}
-                <a class="ui red button" href="/delete/{{ event.id }}">Delete</a>
-            </div>
-            {% endfor %}
-        </div>
+			<div
+				id="calendar-view"
+				style="display: none"
+			>
+				<div
+					style="
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						margin-bottom: 1em;
+					"
+				>
+					<button
+						class="ui icon button"
+						id="prev-btn"
+						title="Previous"
+					>
+						<i class="angle left icon"></i>
+					</button>
+					<button
+						class="ui icon button"
+						id="next-btn"
+						title="Next"
+					>
+						<i class="angle right icon"></i>
+					</button>
+				</div>
+				<div
+					id="calendar-container"
+					style="margin-bottom: 2em"
+				></div>
+			</div>
+		</div>
 
-        <div id="calendar-view" style="display:none;">
-            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1em;">
-                <button class="ui icon button" id="prev-btn" title="Previous">
-                    <i class="angle left icon"></i>
-                </button>
-                <button class="ui icon button" id="next-btn" title="Next">
-                    <i class="angle right icon"></i>
-                </button>
-            </div>
-            <div id="calendar-container" style="margin-bottom: 2em;"></div>
-        </div>
-    </div>
+		<div
+			id="error-notification"
+			class="ui negative message"
+		>
+			<i
+				class="close icon"
+				onclick="hideErrorNotification()"
+			></i>
+			<div class="header">Error</div>
+			<p>There was an error processing your request. Please try again.</p>
+		</div>
 
-    <div id="error-notification" class="ui negative message">
-        <i class="close icon" onclick="hideErrorNotification()"></i>
-        <div class="header">Error</div>
-        <p>There was an error processing your request. Please try again.</p>
-    </div>
-
-    <script>
-        const events = [
-            {% for event in event_list if event.date_time %}
-                { 
-                    id: "{{ event.id }}",
-                    date: "{{ event.date_time.strftime('%Y-%m-%d') }}", 
-                    time: "{{ event.date_time.strftime('%H:%M') if event.date_time else '' }}", 
-                    title: "{{ event.title }}",
-                    is_all_day: {{ 'true' if event.is_all_day else 'false' }} 
-                },
-            {% endfor %}
-        ];
-    </script>
-    <script src="{{ url_for('static', filename='calendar.js') }}"></script>
-</body>
-
+		<script>
+			const events = [
+			    {% for event in event_list if event.date_time %}
+			        {
+			            id: "{{ event.id }}",
+			            date: "{{ event.date_time.strftime('%Y-%m-%d') }}",
+			            time: "{{ event.date_time.strftime('%H:%M') if event.date_time else '' }}",
+			            title: "{{ event.title }}",
+			            is_all_day: {{ 'true' if event.is_all_day else 'false' }}
+			        },
+			    {% endfor %}
+			];
+		</script>
+		<script src="{{ url_for('static', filename='calendar.js') }}"></script>
+		<dialog
+			id="edit-dialog"
+			style="border: none; padding: 0"
+		>
+			<div
+				class="ui modal active"
+				style="position: static; display: block"
+			>
+				<div class="header">Edit Event</div>
+				<div class="content">
+					<form
+						class="ui form"
+						id="edit-form"
+						action="/edit"
+						method="post"
+					>
+						<input
+							type="hidden"
+							name="event_id"
+							id="edit-event-id"
+						/>
+						<div class="field">
+							<label>Title</label>
+							<input
+								type="text"
+								name="title"
+								id="edit-title"
+							/>
+						</div>
+						<div class="two fields">
+							<div class="field">
+								<label>Date</label>
+								<input
+									type="date"
+									name="date"
+									id="edit-date"
+								/>
+							</div>
+							<div class="field">
+								<label>Time</label>
+								<input
+									type="time"
+									name="time"
+									id="edit-time"
+								/>
+							</div>
+						</div>
+						<div style="text-align: right; margin-top: 1em">
+							<button
+								type="button"
+								class="ui button"
+								id="edit-cancel-btn"
+							>
+								Cancel
+							</button>
+							<button
+								type="submit"
+								class="ui primary button"
+							>
+								Save
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</dialog>
+	</body>
 </html>
