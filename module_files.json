@@ -1,0 +1,29 @@
+{
+  "developer": "未知开发者",
+  "analysis_period": "Last 3 months",
+  "responsible_modules": [
+    {
+      "module": ".",
+      "summary": "初始化 Python 应用入口、日期解析逻辑与常量定义；补充单元测试与测试脚本，并配置 Docker 构建与运行脚本。",
+      "key_files": [
+        "unit_tests.py",
+        "date_parsing.py",
+        "app.py",
+        "constants.py",
+        "run_docker.sh",
+        "Dockerfile",
+        "build_docker.sh"
+      ]
+    },
+    {
+      "module": "static",
+      "summary": "初始化前端资源，包括日历交互脚本、样式与首页模板。",
+      "key_files": [
+        "static/calendar.js",
+        "static/calendar.css",
+        "templates/home.html"
+      ]
+    }
+  ],
+  "generated_at": "2026-01-28 00:00:00"
+}

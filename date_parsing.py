@@ -1,6 +1,7 @@
 from dateutil.parser import parse 
 from dateparser.search import search_dates 
 from datetime import datetime, timedelta 
+from typing import Optional, Union
 from constants import THIS_WEEKDAY_PATTERN, NEXT_WEEKDAY_PATTERN, NTH_WEEKDAY_OF_NEXT_MONTH_PATTERN, THREE_LETTER_MONTH_WITH_PERIOD_PATTERN, NOON_MIDNIGHT_PATTERN, PREPOSITIONS_PATTERN, NTH_OF_MONTH_PATTERN, MONTH_NAMES_PATTERN, ORDINAL_WORDS_MAP
 import calendar  # Already imported, but ensuring for monthrange 
 import re  
@@ -63,7 +64,7 @@ def complete_ordinal_str(cleaned_title: str, match: re.Match) -> str:
         return  rest_of_ordinal_str + match.group("ordinal")
         
 
-def ordinal_to_int(ordinal_str: str) -> int | None:
+def ordinal_to_int(ordinal_str: str) -> Optional[int]:
     '''
     Convert an ordinal string to an integer (e.g., "first/1st" -> 1, "second/2nd" -> 2) or -1 for "last"
     Supports English ordinal words from "first/1st" to "thirty-first/31st", and "last".
@@ -98,7 +99,7 @@ def is_same_weekday_as_today(cleaned_title: str) -> bool:
     return False
 
 
-def parse_noon(cleaned_title: str, date_time: datetime | None) -> datetime | None:
+def parse_noon(cleaned_title: str, date_time: Optional[datetime]) -> Optional[datetime]:
     ''' Parse "noon" from a cleaned title string. This is more reliable than using dateutil or dateparser.'''
     if date_time and "noon" in cleaned_title.lower():
         return date_time.replace(hour=12, minute=0, second=0, microsecond=0)
@@ -110,7 +111,7 @@ def parse_simple_date(cleaned_title: str) -> datetime:
     return parse_noon(cleaned_title, parse(cleaned_title, dayfirst=True, fuzzy=True))
 
 
-def parse_relative_natural_language_dates(cleaned_title: str) -> datetime | None:
+def parse_relative_natural_language_dates(cleaned_title: str) -> Optional[datetime]:
     '''
     Parse relative natural language dates from a cleaned title string.
     This function uses dateparser to handle phrases like "tomorrow", "next week", etc.
@@ -130,7 +131,7 @@ def parse_relative_natural_language_dates(cleaned_title: str) -> datetime | None
     return parse_noon(cleaned_title, parsed_date)
 
 
-def _parse_time(cleaned_title: str, parsed_date: datetime) -> datetime | None:
+def _parse_time(cleaned_title: str, parsed_date: datetime) -> Optional[datetime]:
     '''
     Parse time from a cleaned title string and set it on the parsed date.
     To use when the date is parsed using with a custom regex instead of a library.
@@ -182,7 +183,7 @@ def validate_structured_date(cleaned_title: str) -> bool:
     return True  # Valid or no structured date to validate
 
 
-def parse_nth_weekday_of_next_month(cleaned_title: str) -> datetime | None:
+def parse_nth_weekday_of_next_month(cleaned_title: str) -> Optional[datetime]:
     ''' 
     Parse "[nth] [weekday] of next month" from a cleaned title string.
 
@@ -224,7 +225,7 @@ def parse_nth_weekday_of_next_month(cleaned_title: str) -> datetime | None:
     return (None, False)
 
 
-def parse_nth_of_month(cleaned_title: str) -> datetime | None:
+def parse_nth_of_month(cleaned_title: str) -> Optional[datetime]:
     '''
     Parse "[nth] of [month] [year]" from a cleaned title string. [year] is optional.
 
@@ -263,7 +264,7 @@ def parse_nth_of_month(cleaned_title: str) -> datetime | None:
     return (None, False)
 
 
-def find_datetime_string_in_title(title: str, datetime_str: re.Pattern | str) -> tuple[int, int]:
+def find_datetime_string_in_title(title: str, datetime_str: Union[re.Pattern, str]) -> tuple[int, int]:
     '''
     Find the starting & ending indexes of the datetime string in the title.
     The datetime "string" can be either a string or a regex pattern.
@@ -309,7 +310,7 @@ def remove_date_prepositions(title: str, datetime_start_idx: int) -> tuple:
     return (title.strip(), before)
 
 
-def remove_singular_datetime_string(title: str, datetime_str: re.Pattern | str) -> str:
+def remove_singular_datetime_string(title: str, datetime_str: Union[re.Pattern, str]) -> str:
     '''
     Remove a given datetime string (including prepositions that immediately precede) from the title.
     The datetime "string" can be either a string or a regex pattern.
