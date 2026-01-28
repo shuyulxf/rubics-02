@@ -1,0 +1,108 @@
+@-webkit-keyframes buttonFadeIn {
+    from { opacity: 0; transform: translateY(20%);}
+    to { opacity: 1; transform: translateY(0%);}
+}
+
+@keyframes buttonFadeIn {
+    from { opacity: 0; transform: translateY(20%);}
+    to { opacity: 1; transform: translateY(0%);}
+}
+
+.ui.container {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+#calendar-container {
+    min-height: 500px;
+}
+
+.ui.celled.table.calendar-table {
+    table-layout: fixed;
+    min-height: 500px;
+    height: 100%;
+    width: 100%;
+}
+
+.ui.celled.table.calendar-table td, 
+.ui.celled.table.calendar-table th {
+    width: 14.28%;
+    vertical-align: top;
+    word-break: break-word;
+}
+
+.calendar-table thead th {
+    height: 40px;        /* fixed height for header with days of the week */
+    min-height: 40px;
+    max-height: 40px;
+    vertical-align: middle;
+    padding: 0.5em 0;
+    box-sizing: border-box;
+}
+
+.calendar-table tbody tr {
+    height: auto;         /* allow all other rows to grow/shrink based on content */
+}
+
+.calendar-day-number {
+    font-weight: bold;
+    margin-bottom: 0.3em;
+}
+
+.month-calendar-event {
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 4px 8px;
+    margin-bottom: 3px;
+    display: block;
+    color: #1565c0;
+    font-size: 0.95em;
+    word-break: break-word;
+    transition: all 0.2s ease;
+}
+
+.month-calendar-event, .day-calendar-event {
+    position: relative;
+    cursor: pointer;
+}
+
+.calendar-event-delete-btn {
+    position: absolute;
+    bottom: calc(100% + 2px);
+    right: 0px;
+    margin: 0px !important;
+    /* For accessibility, display: none should be used instead of visibility: hidden or opacity: 0 with pointer-events: none*/
+    display: none !important;  
+}
+
+.month-calendar-event .calendar-event-delete-btn {
+    font-size: 0.85em !important; 
+}
+
+.selected-event {
+    background: #1565c0 !important;
+    color: white !important;
+}
+
+.selected-event .header {
+    color: white !important;
+}
+
+.selected-event .calendar-event-delete-btn {
+    display: inline-block !important;
+    -webkit-animation: buttonFadeIn 0.2s ease;
+    animation: buttonFadeIn 0.2s ease;
+}
+
+#error-notification {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    margin-left: 10px;
+    margin-bottom: 0px;
+    display: none;
+}
+
+#error-notification.show {
+    display: block;
+}
